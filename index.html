@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASKORA — Premium Animated Productivity</title>
+  <meta name="description" content="TASKORA is a personalized, futuristic To-Do List experience with warm burnt orange aesthetics, responsive character animations, and automatic 24-hour task expiration.">
+
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit for futuristic readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Ambient Background Glow Elements -->
+  <div class="ambient-glow glow-top" aria-hidden="true"></div>
+  <div class="ambient-glow glow-bottom" aria-hidden="true"></div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <!-- =====================================================================
+       1. ONBOARDING MODAL (First Launch Personalization)
+       ===================================================================== -->
+  <div id="onboardingModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="onboardTitle">
+    <div class="modal-card onboard-card">
+      <div class="brand-badge">
+        <span class="brand-dot"></span>
+        <span>WELCOME TO TASKORA</span>
+      </div>
+
+      <h1 id="onboardTitle" class="modal-title">Personalize Your Workspace</h1>
+      <p class="modal-subtitle">Set your name and choose your animated productivity companion to get started.</p>
+
+      <form id="onboardingForm" autocomplete="off">
+        <div class="form-group">
+          <label for="userNameInput" class="form-label">Your Preferred Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <input type="text" id="userNameInput" placeholder="e.g. Maanesha" maxlength="30" required>
+          </div>
+          <span id="nameError" class="field-error" aria-live="polite"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Choose Your Avatar Companion</label>
+          <div class="avatar-selector" role="radiogroup" aria-label="Select avatar">
+            <!-- Boy Option -->
+            <label class="avatar-option selected" for="avatarBoy">
+              <input type="radio" id="avatarBoy" name="avatarChoice" value="boy" checked>
+              <div class="avatar-preview-box">
+                <div class="avatar-img-wrap" id="previewBoyAvatar">
+                  <img src="assets/boy-avatar.png" alt="Leo (Boy Avatar)" class="avatar-preview-img boy-img">
+                </div>
+                <span class="avatar-label">Leo (Boy)</span>
+                <span class="avatar-tag">Adventurer</span>
+              </div>
+            </label>
+
+            <!-- Girl Option -->
+            <label class="avatar-option" for="avatarGirl">
+              <input type="radio" id="avatarGirl" name="avatarChoice" value="girl">
+              <div class="avatar-preview-box">
+                <div class="avatar-img-wrap" id="previewGirlAvatar">
+                  <img src="assets/girl.avatar.png" alt="Aria (Girl Avatar)" class="avatar-preview-img girl-img">
+                </div>
+                <span class="avatar-label">Aria (Girl)</span>
+                <span class="avatar-tag">Strategist</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="onboardSubmitBtn" class="btn btn-primary btn-block">
+          <span>Launch My Workspace</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       2. SIGNATURE LAUNCH STAGE (Right-to-Left Push Reveal)
+       ===================================================================== -->
+  <div id="launchStage" class="launch-stage hidden" aria-live="assertive" role="region" aria-label="Introductory animation">
+    <div class="launch-backdrop"></div>
+    <div class="launch-stage-content">
+      <!-- Skip button for accessibility and user control -->
+      <button id="skipIntroBtn" class="btn-skip" type="button" aria-label="Skip introduction animation">
+        Skip intro ➔
+      </button>
+
+      <div class="launch-scene" id="launchScene">
+        <!-- Floating simulated task board being pushed -->
+        <div class="pushable-board" id="pushableBoard">
+          <div class="pushable-board-header">
+            <span class="board-dot red"></span>
+            <span class="board-dot orange"></span>
+            <span class="board-dot cream"></span>
+            <span class="board-title">TASKORA // BOARD INITIALIZING</span>
+          </div>
+          <div class="pushable-board-body">
+            <div class="mock-line long glow"></div>
+            <div class="mock-line medium"></div>
+            <div class="mock-line short"></div>
+            <div class="mock-card">
+              <div class="mock-checkbox"></div>
+              <div class="mock-card-text"></div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-checkbox"></div>
+              <div class="mock-card-text short"></div>
+            </div>
+          </div>
+          <div class="board-energy-beam"></div>
+        </div>
+
+        <!-- The avatar actively pushing the board from right to left -->
+        <div class="pusher-avatar-container" id="pusherAvatarContainer">
+          <div class="pusher-character" id="pusherCharacter"></div>
+          <div class="pusher-speech-bubble" id="pusherSpeech">
+            <span id="pusherSpeechText">Powering up your workspace! Hold tight...</span>
+          </div>
+          <div class="push-particles" id="pushParticles"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       3. MAIN TASKORA APPLICATION CONTAINER
+       ===================================================================== -->
+  <div id="appContainer" class="app-container">
+
+    <!-- Top Navigation & Brand Header -->
+    <header class="app-header">
+      <div class="brand-group">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">TASKORA</span>
+          <span class="brand-version">v2.4 • 24H PRODUCTIVITY</span>
+        </div>
+      </div>
+
+      <!-- Action controls: Sound Toggle, Expiry Info, Settings -->
+      <div class="header-actions">
+        <button id="soundToggleBtn" class="icon-btn" type="button" aria-label="Toggle sound chimes" title="Toggle sound effects">
+          <svg id="soundIconOn" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="soundIconOff" class="hidden" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <button id="settingsBtn" class="icon-btn" type="button" aria-label="Open Settings" title="Personalization & Settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Companion Banner & Personalized Heading -->
+    <section class="companion-hero" aria-label="Personalized greeting and avatar status">
+      <div class="companion-avatar-area">
+        <div class="avatar-interactive-wrap" id="mainAvatarWrap" title="Click me to wave!">
+          <!-- Animated Avatar SVG will be inserted here dynamically -->
+          <div id="mainAvatarSvg" class="main-avatar-svg"></div>
+          <div class="avatar-glow-ring"></div>
+        </div>
+      </div>
+
+      <div class="companion-content">
+        <div class="companion-speech-bubble" id="companionBubble">
+          <span class="speech-arrow"></span>
+          <p id="companionMessage" class="speech-text">
+            Welcome aboard! Add your first mission below.
+          </p>
+        </div>
+
+        <h2 id="personalizedHeading" class="personalized-title">
+          <span class="user-name-highlight">Your</span> To-Do List
+        </h2>
+        <p class="personalized-subtitle">
+          Organize your day with precision. Keep active tasks sharp and focused.
+        </p>
+      </div>
+    </section>
+
+    <!-- Expiry Policy Notice Banner -->
+    <div class="policy-banner" role="status">
+      <div class="policy-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </div>
+      <div class="policy-text">
+        <strong>Automatic 24-Hour Expiration Active:</strong> Every task has a lifetime of exactly 24 hours from creation to prevent clutter and keep your focus fresh.
+      </div>
+      <div class="policy-indicator" id="expiryCycleTicker" title="System checking every 15s">
+        <span class="pulse-dot"></span> Active
+      </div>
+    </div>
+
+    <!-- Productivity Metrics Overview -->
+    <section class="stats-grid" aria-label="Task statistics">
+      <div class="stat-card">
+        <div class="stat-icon terracotta">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value" id="statTotal">0</span>
+          <span class="stat-label">Total Tasks</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon orange">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 14 14"></polyline>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value" id="statActive">0</span>
+          <span class="stat-label">Active</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon cream">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value" id="statCompleted">0</span>
+          <span class="stat-label">Completed</span>
+        </div>
+      </div>
+
+      <div class="stat-card progress-card">
+        <div class="progress-details">
+          <span class="stat-label">Daily Progress</span>
+          <span class="stat-percentage" id="statPercentage">0%</span>
+        </div>
+        <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add Task Input Panel -->
+    <section class="task-input-section" aria-label="Add task form">
+      <form id="addTaskForm" class="task-form" autocomplete="off">
+        <div class="task-input-box">
+          <svg class="task-input-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          <input 
+            type="text" 
+            id="taskTextInput" 
+            class="task-text-input" 
+            placeholder="What needs to be accomplished today? (e.g. Design wireframes)"
+            maxlength="150"
+            aria-label="New task description"
+          >
+          <button type="submit" id="addTaskBtn" class="btn btn-add">
+            <span class="btn-icon">＋</span>
+            <span class="btn-text">Add Task</span>
+          </button>
+        </div>
+        <div id="inputValidationError" class="field-error task-error" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <!-- Task Filter Navigation & Controls -->
+    <section class="task-dashboard-panel" id="taskDashboardPanel">
+      <div class="dashboard-controls">
+        <div class="filter-tabs" role="tablist" aria-label="Task filter tabs">
+          <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">
+            All (<span id="filterCountAll">0</span>)
+          </button>
+          <button class="filter-tab" data-filter="active" role="tab" aria-selected="false">
+            Active (<span id="filterCountActive">0</span>)
+          </button>
+          <button class="filter-tab" data-filter="completed" role="tab" aria-selected="false">
+            Completed (<span id="filterCountCompleted">0</span>)
+          </button>
+        </div>
+
+        <div class="panel-meta">
+          <span class="meta-note" id="queueMetaNote">Queue: Sequential Order</span>
+        </div>
+      </div>
+
+      <!-- Interactive Queue Pipeline Flow Header -->
+      <div class="queue-flow-bar" id="queueFlowBar">
+        <div class="queue-flow-header">
+          <div class="queue-status-indicator">
+            <span class="queue-status-beacon"></span>
+            <span class="queue-status-title">QUEUE PIPELINE</span>
+          </div>
+          <div class="queue-flow-summary" id="queueSummaryText">
+            Queue: 0 tasks waiting • Ready for your next mission
+          </div>
+        </div>
+        <div class="queue-flow-rail-visual" aria-hidden="true">
+          <span class="queue-rail-dot"></span>
+          <span class="queue-rail-line"></span>
+          <span class="queue-rail-label">One after another queue progression</span>
+        </div>
+      </div>
+
+      <!-- Task List Container -->
+      <ul id="taskList" class="task-list" aria-live="polite">
+        <!-- Dynamically rendered task items -->
+      </ul>
+
+      <!-- Empty State Container -->
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-icon-wrap" id="emptyAvatarWrap">
+          <!-- Dynamic miniature waving character -->
+        </div>
+        <h3 class="empty-title">All Cleared & Ready!</h3>
+        <p class="empty-desc">No tasks in this view. Use the input bar above to capture your goals and let's get moving!</p>
+      </div>
+    </section>
+
+    <!-- Footer with Branding & App Details -->
+    <footer class="app-footer">
+      <p>TASKORA • Premium Animated To-Do Experience • Crafted with dark-orange & warm cream elegance</p>
+    </footer>
+
+  </div> <!-- /#appContainer -->
+
+  <!-- =====================================================================
+       4. SETTINGS MODAL (Change Name, Avatar, Replay Intro, Expiry Test)
+       ===================================================================== -->
+  <div id="settingsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-card settings-card">
+      <div class="modal-header">
+        <h2 id="settingsTitle" class="modal-title">Settings & Personalization</h2>
+        <button id="closeSettingsBtn" class="icon-btn-close" aria-label="Close settings">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form id="settingsForm" class="settings-form">
+        <!-- Display Name -->
+        <div class="form-group">
+          <label for="editNameInput" class="form-label">Display Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <input type="text" id="editNameInput" maxlength="30" required>
+          </div>
+        </div>
+
+        <!-- Avatar Selection -->
+        <div class="form-group">
+          <label class="form-label">Character Avatar</label>
+          <div class="avatar-selector">
+            <label class="avatar-option" for="settingsAvatarBoy">
+              <input type="radio" id="settingsAvatarBoy" name="settingsAvatar" value="boy">
+              <div class="avatar-preview-box mini">
+                <div class="avatar-mini-thumb">
+                  <img src="assets/boy-avatar.png" alt="Leo" class="avatar-thumb-img boy-img">
+                </div>
+                <span class="avatar-label">Leo (Boy)</span>
+              </div>
+            </label>
+            <label class="avatar-option" for="settingsAvatarGirl">
+              <input type="radio" id="settingsAvatarGirl" name="settingsAvatar" value="girl">
+              <div class="avatar-preview-box mini">
+                <div class="avatar-mini-thumb">
+                  <img src="assets/girl.avatar.png" alt="Aria" class="avatar-thumb-img girl-img">
+                </div>
+                <span class="avatar-label">Aria (Girl)</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Testing / Verification Mode for 24-hr expiry -->
+        <div class="form-group switch-group">
+          <div class="switch-info">
+            <span class="switch-title">24-Hour Expiry Policy</span>
+            <span class="switch-desc">Production default is strictly 24 hours. You can simulate a 1-minute expiry for rapid testing.</span>
+          </div>
+          <select id="expiryModeSelect" class="select-control">
+            <option value="standard">Standard (24 Hours)</option>
+            <option value="test_1m">Test Mode (1 Minute)</option>
+          </select>
+        </div>
+
+        <!-- Sound Effects -->
+        <div class="form-group switch-group">
+          <div class="switch-info">
+            <span class="switch-title">Celebration Sound Effects</span>
+            <span class="switch-desc">Play soft synthesized chimes upon task completion and actions.</span>
+          </div>
+          <label class="switch-toggle" for="soundSettingToggle">
+            <input type="checkbox" id="soundSettingToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Replay Launch Animation & Reset Profile Buttons -->
+        <div class="settings-actions-group">
+          <button type="button" id="replayIntroBtn" class="btn btn-secondary btn-block">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>Replay Signature Push Launch</span>
+          </button>
+
+          <button type="button" id="resetProfileBtn" class="btn btn-secondary btn-block btn-reset-profile">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            <span>Switch User / Reset Onboarding</span>
+          </button>
+        </div>
+
+        <!-- Save Button -->
+        <div class="modal-footer">
+          <button type="button" id="cancelSettingsBtn" class="btn btn-ghost">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Preferences</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       5. CELEBRATION SPARKLES CANVAS
+       ===================================================================== -->
+  <canvas id="celebrationCanvas" class="celebration-canvas" aria-hidden="true"></canvas>
+
+  <!-- =====================================================================
+       6. TOAST NOTIFICATION CONTAINER
+       ===================================================================== -->
+  <div id="toastContainer" class="toast-container" role="region" aria-label="Notifications" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>
