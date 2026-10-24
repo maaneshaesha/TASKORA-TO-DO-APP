@@ -7,7 +7,7 @@
  * Features:
  * 1. Personalization & User Onboarding with Uploaded Interactive Avatars:
  *    - Boy (Leo): assets/boy-avatar.png
- *    - Girl (Aria): assets/girl.avatar.png
+ *    - Girl (Aria): assets/girl-avatar.png
  * 2. Interactive Avatar with 3D Tilt, Click Reactions, and Motivational Speech.
  * 3. Sequential Task Queue Pipeline (Tasks added one after another in queue form).
  * 4. Queue Progression (Current Focus #01, Up Next #02, Waiting In Queue).
@@ -48,7 +48,7 @@ const DEFAULT_USER_STATE = {
 // Uploaded Avatar Assets
 const AVATAR_IMAGES = {
   boy: 'assets/boy-avatar.png',
-  girl: 'assets/girl.avatar.png'
+  girl: 'assets/girl-avatar.png'
 };
 
 // Interactive avatar speech quotes
@@ -151,7 +151,7 @@ let expiryCheckIntervalId = null;
    ============================================================================
    Displays the high-resolution character images uploaded to the assets folder:
      - assets/boy-avatar.png (Leo)
-     - assets/girl.avatar.png (Aria)
+     - assets/girl-avatar.png (Aria)
    Enriches them with interactive 3D perspective tilt, floating idle animation,
    celebration glow, and click speech reactions.
    ============================================================================ */
@@ -1323,3 +1323,4 @@ document.addEventListener('DOMContentLoaded', () => {
     checkTaskExpiration();
   }, 15000);
 });
+
